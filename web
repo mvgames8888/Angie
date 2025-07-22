@@ -1,0 +1,21 @@
+# Si tu repositorio de GitHub https://github.com/mvgames8888/Angie.git está vacío
+# y quieres subir la landing page de OMPADEL desde cero,
+# aquí tienes los pasos correctos para hacer el push inicial:
+
+# 1. Inicializa Git si aún no lo has hecho
+ git init
+
+# 2. Agrega todos los archivos del proyecto (Next.js + Tailwind + landing)
+ git add .
+
+# 3. Crea el primer commit
+ git commit -m "Initial commit: Landing page OMPADEL"
+
+# 4. Agrega el repositorio remoto (ya lo tienes correcto)
+ git remote add origin https://github.com/mvgames8888/Angie.git
+
+# 5. Renombra tu rama local a 'main'
+ git branch -M main
+
+# 6. Sube todo al repositorio remoto
+ git push -u origin main
