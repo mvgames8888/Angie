@@ -1,0 +1,4 @@
+# Local audit worktrees extracted from the supplied source archives.
+/agglayer-contracts-main/
+/vault-bridge-main/
+__pycache__/
