@@ -93,6 +93,27 @@ def pda_summary(account: dict[str, Any]) -> str | None:
     return details
 
 
+def documentation_summary(value: Any) -> str | None:
+    """Join Anchor documentation lines without silently accepting bad metadata."""
+    if value is None:
+        return None
+    if not isinstance(value, list) or not all(isinstance(line, str) for line in value):
+        return f"_invalid documentation metadata_: `{compact_json(value)}`"
+    return " ".join(line.strip() for line in value if line.strip()) or None
+
+
+def relations_summary(account: dict[str, Any]) -> str | None:
+    """Render Anchor account relations, including malformed metadata for review."""
+    relations = account.get("relations")
+    if relations is None:
+        return None
+    if not isinstance(relations, list) or not all(
+        isinstance(relation, str) for relation in relations
+    ):
+        return f"_invalid relation metadata_: `{compact_json(relations)}`"
+    return ", ".join(f"`{relation}`" for relation in relations) or "_empty_"
+
+
 def review_indicators(accounts: list[tuple[str, dict[str, Any]]]) -> list[str]:
     """Return conservative prompts for properties that need manual validation."""
     indicators = []
@@ -123,10 +144,13 @@ def render_idl(filename: str, idl: dict[str, Any]) -> tuple[str, int]:
         name = str(instruction.get("name", "<unnamed>"))
         accounts = list(flatten_accounts(instruction.get("accounts", [])))
         args = argument_summary(instruction.get("args", []))
+        docs = documentation_summary(instruction.get("docs"))
         signers = [n for n, a in accounts if "signer" in account_traits(a)]
         indicators = review_indicators(accounts)
         indicator_count += len(indicators)
         lines.extend((f"### `{name}`", "", f"- Arguments: **{len(args)}**"))
+        if docs:
+            lines.append(f"- Documentation: {docs}")
         if args:
             lines.extend(f"  - {argument}" for argument in args)
         lines.append(f"- Visible signers: {', '.join(f'`{s}`' for s in signers) or '**none**'}")
@@ -143,6 +167,12 @@ def render_idl(filename: str, idl: dict[str, Any]) -> tuple[str, int]:
             pda = pda_summary(account)
             if pda:
                 lines.append(f"    - PDA: `{pda}`")
+            relations = relations_summary(account)
+            if relations:
+                lines.append(f"    - Relations: {relations}")
+            account_docs = documentation_summary(account.get("docs"))
+            if account_docs:
+                lines.append(f"    - Documentation: {account_docs}")
         lines.append("")
     return "\n".join(lines), indicator_count
 

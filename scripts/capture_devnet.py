@@ -74,6 +74,30 @@ def programdata_address(program: bytes) -> str:
     return base58_encode(program[4:36])
 
 
+def programdata_metadata(programdata: bytes) -> dict[str, Any]:
+    """Decode the bincode header of an UpgradeableLoader ProgramData account."""
+    if len(programdata) < 13 or int.from_bytes(programdata[:4], "little") != 3:
+        raise ValueError("account is not an UpgradeableLoader ProgramData state")
+    deployment_slot = int.from_bytes(programdata[4:12], "little")
+    option = programdata[12]
+    if option == 0:
+        upgrade_authority = None
+        metadata_length = 13
+    elif option == 1:
+        if len(programdata) < 45:
+            raise ValueError("ProgramData upgrade authority is truncated")
+        upgrade_authority = base58_encode(programdata[13:45])
+        metadata_length = 45
+    else:
+        raise ValueError(f"invalid ProgramData authority option: {option}")
+    return {
+        "deployment_slot": deployment_slot,
+        "upgrade_authority": upgrade_authority,
+        "metadata_length": metadata_length,
+        "elf_length": len(programdata) - metadata_length,
+    }
+
+
 def capture(output: Path, rpc_url: str = DEVNET_RPC, opener=urlopen) -> dict[str, Any]:
     genesis_hash = rpc_call(rpc_url, "getGenesisHash", [], opener)
     if genesis_hash != DEVNET_GENESIS_HASH:
@@ -112,6 +136,7 @@ def capture(output: Path, rpc_url: str = DEVNET_RPC, opener=urlopen) -> dict[str
             data_account, data_bytes, data_slot = decode_account(data_result, data_address)
             if data_account.get("owner") != UPGRADEABLE_LOADER:
                 raise ValueError(f"ProgramData {data_address} has an unexpected owner")
+            metadata = programdata_metadata(data_bytes)
             stem = filename.removesuffix(".json")
             (staging / f"{stem}.program.bin").write_bytes(program_bytes)
             (staging / f"{stem}.programdata.bin").write_bytes(data_bytes)
@@ -122,6 +147,7 @@ def capture(output: Path, rpc_url: str = DEVNET_RPC, opener=urlopen) -> dict[str
                 "programdata_slot": data_slot,
                 "program_sha256": hashlib.sha256(program_bytes).hexdigest(),
                 "programdata_sha256": hashlib.sha256(data_bytes).hexdigest(),
+                **metadata,
             }
         end_slot = int(rpc_call(rpc_url, "getSlot", [{"commitment": "finalized"}], opener))
         manifest["end_slot"] = end_slot

@@ -10,6 +10,7 @@ from scripts.capture_devnet import (
     UPGRADEABLE_LOADER,
     base58_encode,
     capture,
+    programdata_metadata,
 )
 from scripts.inventory_idls import EXPECTED_PROGRAMS
 
@@ -26,10 +27,35 @@ class DevnetCaptureTests(unittest.TestCase):
     def test_base58_preserves_leading_zeroes(self):
         self.assertEqual(base58_encode(b"\0\0\x01"), "112")
 
+    def test_decodes_programdata_metadata_with_and_without_authority(self):
+        authority = bytes(range(1, 33))
+        with_authority = (3).to_bytes(4, "little") + (42).to_bytes(8, "little")
+        with_authority += b"\x01" + authority + b"elf"
+        self.assertEqual(
+            programdata_metadata(with_authority),
+            {
+                "deployment_slot": 42,
+                "upgrade_authority": base58_encode(authority),
+                "metadata_length": 45,
+                "elf_length": 3,
+            },
+        )
+        immutable = (3).to_bytes(4, "little") + (7).to_bytes(8, "little") + b"\0elf"
+        self.assertEqual(programdata_metadata(immutable)["upgrade_authority"], None)
+        self.assertEqual(programdata_metadata(immutable)["elf_length"], 3)
+
+    def test_rejects_invalid_programdata_state(self):
+        with self.assertRaisesRegex(ValueError, "not an UpgradeableLoader ProgramData"):
+            programdata_metadata(b"program-data")
+        truncated = (3).to_bytes(4, "little") + bytes(8) + b"\x01"
+        with self.assertRaisesRegex(ValueError, "authority is truncated"):
+            programdata_metadata(truncated)
+
     def test_captures_program_and_programdata_with_manifest(self):
         data_key = bytes(range(1, 33))
         program = (2).to_bytes(4, "little") + data_key
-        programdata = b"program-data"
+        programdata = (3).to_bytes(4, "little") + (91).to_bytes(8, "little")
+        programdata += b"\x01" + bytes(range(32)) + b"program-data"
         calls = []
 
         def account(raw, executable):
@@ -63,6 +89,12 @@ class DevnetCaptureTests(unittest.TestCase):
             self.assertEqual(saved, manifest)
             self.assertEqual(len(saved["programs"]), 3)
             self.assertEqual((output / "pump.programdata.bin").read_bytes(), programdata)
+            self.assertEqual(saved["programs"]["pump"]["deployment_slot"], 91)
+            self.assertEqual(
+                saved["programs"]["pump"]["upgrade_authority"],
+                base58_encode(bytes(range(32))),
+            )
+            self.assertEqual(saved["programs"]["pump"]["elf_length"], 12)
         self.assertEqual(calls.count("getAccountInfo"), 6)
 
     def test_rejects_non_executable_program(self):

@@ -52,11 +52,37 @@ A candidate moves into a private Cantina draft only when all are true:
 5. Test Token Program versus Token-2022 substitutions only where the IDL allows
    a caller-supplied token program.
 
-## Environment limitation observed
+## Static review status
 
-This execution environment currently rejects outbound HTTPS requests to both
-GitHub and Solana Devnet with `403 Forbidden` at the CONNECT proxy. Therefore,
-no claim about the current IDLs or deployed bytecode has been made from this
-environment. Copying the three JSON files and Devnet account dumps into the
-workspace is sufficient to resume static and offline binary analysis without
-that network path.
+The three required IDLs are now present and their program addresses have been
+validated. The reproducible inventory is in `audit/attack-surface.md`, and the
+triaged static review is in `audit/STATIC_ANALYSIS.md`. The review did not
+confirm a vulnerability; its prioritized hypotheses still require controlled
+Devnet validation.
+
+The highest-priority hypotheses and their explicit confirmation/rejection gates
+are tracked in `audit/CANDIDATES.md`. The leading check is AMM cashback recipient
+ownership because the destination is not declaratively constrained and the AMM
+IDL lacks the recipient-specific error exposed by the Pump IDL. This remains an
+unconfirmed asymmetry, not a finding.
+
+`audit/candidate-vectors.json` pins the reviewed IDL hashes, instruction
+discriminators, exact account order, and mutation indices for the four P1
+experiments. It is a handoff artifact for an external Devnet runner, not a
+transaction or proof of impact.
+
+The IDL consistency pass found three duplicated `mint` seed entries in legacy
+`pump::migrate` associated-token PDA metadata. `audit/IDL_INTEGRITY.md` records
+them as client-metadata defects. This item is closed and must not be submitted
+because no unauthorized runtime effect has been shown. The reward-oriented
+decision and go/no-go gate are in `audit/ELIGIBILITY.md`.
+
+The documented `buy_exact_sol_in` reverse quote also has reproducible
+under-delivery counterexamples when protocol and creator fees round separately.
+`audit/MATH_REVIEW.md` records the bounded result and explains why an atomic
+slippage failure is not, by itself, an eligible security finding. It is archived
+behind the value-moving candidates under the gate in `audit/SCOPE.md`.
+
+No executable or ProgramData account dumps are present yet. Claims about the
+deployed bytecode, upgrade authority, runtime constraints, or handler arithmetic
+remain out of scope until those artifacts are captured and hashed.

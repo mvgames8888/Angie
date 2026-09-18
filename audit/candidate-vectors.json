@@ -1,0 +1,434 @@
+{
+  "candidates": {
+    "C-01": {
+      "accounts": [
+        {
+          "index": 0,
+          "name": "user",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 1,
+          "name": "user_volume_accumulator",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 2,
+          "name": "quote_mint",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 3,
+          "name": "quote_token_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 4,
+          "name": "user_volume_accumulator_wsol_token_account",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 5,
+          "name": "user_wsol_token_account",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 6,
+          "name": "system_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 7,
+          "name": "event_authority",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 8,
+          "name": "program",
+          "signer": false,
+          "writable": false
+        }
+      ],
+      "candidate_attempt": "replace only the destination with a quote-mint token account owned by user B",
+      "discriminator": [
+        37,
+        58,
+        35,
+        126,
+        190,
+        53,
+        228,
+        197
+      ],
+      "idl": "pump_amm.json",
+      "idl_instruction": "claim_cashback",
+      "mutation_indices": {
+        "user_wsol_token_account": 5
+      },
+      "negative_control": "destination is a non-associated quote-mint token account owned by user A",
+      "program_address": "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+      "required_assertion": "failed attempts are atomic; successful attempts record all balance and state deltas"
+    },
+    "C-02-amm-token": {
+      "accounts": [
+        {
+          "index": 0,
+          "name": "quote_mint",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 1,
+          "name": "quote_token_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 2,
+          "name": "coin_creator",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 3,
+          "name": "coin_creator_vault_authority",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 4,
+          "name": "coin_creator_vault_ata",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 5,
+          "name": "coin_creator_token_account",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 6,
+          "name": "event_authority",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 7,
+          "name": "program",
+          "signer": false,
+          "writable": false
+        }
+      ],
+      "candidate_attempt": "substitute an unrelated creator/destination pair",
+      "discriminator": [
+        160,
+        57,
+        89,
+        42,
+        181,
+        139,
+        43,
+        66
+      ],
+      "idl": "pump_amm.json",
+      "idl_instruction": "collect_coin_creator_fee",
+      "mutation_indices": {
+        "coin_creator": 2,
+        "coin_creator_token_account": 5
+      },
+      "negative_control": "coin creator and destination token account match",
+      "program_address": "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+      "required_assertion": "failed attempts are atomic; successful attempts record all balance and state deltas"
+    },
+    "C-02-pump-native": {
+      "accounts": [
+        {
+          "index": 0,
+          "name": "creator",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 1,
+          "name": "creator_vault",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 2,
+          "name": "system_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 3,
+          "name": "event_authority",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 4,
+          "name": "program",
+          "signer": false,
+          "writable": false
+        }
+      ],
+      "candidate_attempt": "replace creator while keeping the funded creator_vault constant",
+      "discriminator": [
+        20,
+        22,
+        86,
+        123,
+        198,
+        28,
+        219,
+        132
+      ],
+      "idl": "pump.json",
+      "idl_instruction": "collect_creator_fee",
+      "mutation_indices": {
+        "creator": 0
+      },
+      "negative_control": "creator is the wallet used to derive creator_vault",
+      "program_address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+      "required_assertion": "failed attempts are atomic; successful attempts record all balance and state deltas"
+    },
+    "C-02-pump-token": {
+      "accounts": [
+        {
+          "index": 0,
+          "name": "creator",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 1,
+          "name": "creator_token_account",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 2,
+          "name": "creator_vault",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 3,
+          "name": "creator_vault_token_account",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 4,
+          "name": "quote_mint",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 5,
+          "name": "quote_token_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 6,
+          "name": "associated_token_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 7,
+          "name": "system_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 8,
+          "name": "event_authority",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 9,
+          "name": "program",
+          "signer": false,
+          "writable": false
+        }
+      ],
+      "candidate_attempt": "substitute an unrelated creator/destination pair",
+      "discriminator": [
+        207,
+        17,
+        138,
+        242,
+        4,
+        34,
+        19,
+        56
+      ],
+      "idl": "pump.json",
+      "idl_instruction": "collect_creator_fee_v2",
+      "mutation_indices": {
+        "creator": 0,
+        "creator_token_account": 1
+      },
+      "negative_control": "creator and destination token account have the intended owner relationship",
+      "program_address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+      "required_assertion": "failed attempts are atomic; successful attempts record all balance and state deltas"
+    },
+    "C-04": {
+      "accounts": [
+        {
+          "index": 0,
+          "name": "event_authority",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 1,
+          "name": "program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 2,
+          "name": "payer",
+          "signer": true,
+          "writable": true
+        },
+        {
+          "index": 3,
+          "name": "system_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 4,
+          "name": "token_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 5,
+          "name": "associated_token_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 6,
+          "name": "rent",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 7,
+          "name": "fee_program_global",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 8,
+          "name": "donation_fee_pda",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 9,
+          "name": "quote_mint",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 10,
+          "name": "donation_fee_pda_ata",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 11,
+          "name": "donation_relay_program",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 12,
+          "name": "donation_relay_event_authority",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 13,
+          "name": "mint_whitelist",
+          "signer": false,
+          "writable": false
+        },
+        {
+          "index": 14,
+          "name": "epoch_tracker",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 15,
+          "name": "debouncer",
+          "signer": false,
+          "writable": true
+        },
+        {
+          "index": 16,
+          "name": "debouncer_ata",
+          "signer": false,
+          "writable": true
+        }
+      ],
+      "candidate_attempt": "replace one relay account at a time, then all four, with configuration B",
+      "discriminator": [
+        220,
+        10,
+        189,
+        167,
+        169,
+        17,
+        25,
+        69
+      ],
+      "idl": "pump_fees.json",
+      "idl_instruction": "crank_donation_fee_pda",
+      "mutation_indices": {
+        "debouncer": 15,
+        "debouncer_ata": 16,
+        "epoch_tracker": 14,
+        "mint_whitelist": 13
+      },
+      "negative_control": "all relay accounts belong to researcher-controlled configuration A",
+      "program_address": "pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ",
+      "required_assertion": "failed attempts are atomic; successful attempts record all balance and state deltas"
+    }
+  },
+  "cluster": "devnet",
+  "idls": {
+    "pump.json": {
+      "program_address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+      "sha256": "d9ba3eb509ccf315baa9ac655a3bcf45506a6c477af2b16f3f5ba93a135aec29"
+    },
+    "pump_amm.json": {
+      "program_address": "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+      "sha256": "a169522f756aacd6e03d32dd1ee63321a6196442e9d7e0edc9a77d1a9e30f4dc"
+    },
+    "pump_fees.json": {
+      "program_address": "pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ",
+      "sha256": "510536a37bf40222fe6c307edd81df1a3c34a8009ca7479a4033aee478feddc5"
+    }
+  },
+  "transaction_policy": "researcher-controlled accounts and funds only"
+}
