@@ -7,9 +7,12 @@ from pathlib import Path
 from scripts.inventory_idls import (
     EXPECTED_PROGRAMS,
     argument_summary,
+    documentation_summary,
     download_idls,
     inventory,
     pda_summary,
+    relations_summary,
+    render_idl,
     review_indicators,
 )
 
@@ -82,6 +85,23 @@ class InventoryTests(unittest.TestCase):
             'seeds=[{"kind":"const","value":[1,2]}], '
             'program={"kind":"account","path":"program"}',
         )
+
+    def test_renders_documentation_and_relations(self):
+        self.assertEqual(documentation_summary([" first ", "second"]), "first second")
+        self.assertEqual(documentation_summary([]), None)
+        self.assertIn("invalid documentation", documentation_summary("bad"))
+        self.assertEqual(relations_summary({"relations": ["pool"]}), "`pool`")
+        self.assertEqual(relations_summary({"relations": []}), "_empty_")
+        self.assertIn("invalid relation", relations_summary({"relations": "pool"}))
+
+        payload = self.payload(next(iter(EXPECTED_PROGRAMS.values())))
+        payload["instructions"][0]["docs"] = ["Trade documentation"]
+        payload["instructions"][0]["accounts"][0]["docs"] = ["User docs"]
+        payload["instructions"][0]["accounts"][0]["relations"] = ["pool"]
+        section, _ = render_idl("pump.json", payload)
+        self.assertIn("- Documentation: Trade documentation", section)
+        self.assertIn("- Relations: `pool`", section)
+        self.assertIn("- Documentation: User docs", section)
 
     def test_flags_only_conservative_manual_review_indicators(self):
         accounts = [

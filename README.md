@@ -33,9 +33,14 @@ temporary directory, and checked as a complete set before replacing local
 files. For a fully offline run, manually place the files in `idl/` and omit
 `--download`.
 
+The checked-in result is [`audit/attack-surface.md`](audit/attack-surface.md),
+and the corresponding static triage and Devnet validation queue are documented
+in [`audit/STATIC_ANALYSIS.md`](audit/STATIC_ANALYSIS.md).
+
 The command fails closed when an IDL is missing, malformed, or declares an
 unexpected program address. It inventories writable and signer accounts,
-optional accounts, PDA metadata, and fixed addresses. It also raises
+optional accounts, PDA metadata, fixed addresses, declarative relations, and
+instruction/account documentation. It also raises
 manual-review indicators for instructions with no visible signer, optional
 signers, and program-like accounts without a fixed address in the IDL. These
 indicators need constraint and runtime validation; they are not proof of an
@@ -48,6 +53,43 @@ Run the offline test suite with:
 ```bash
 python3 -m unittest discover -s tests -v
 ```
+
+Check the internally published `buy_exact_sol_in` quote formulas with:
+
+```bash
+python3 scripts/audit_quote_math.py --limit 64
+```
+
+The assumptions and remaining runtime questions are recorded in
+[`audit/MATH_REVIEW.md`](audit/MATH_REVIEW.md).
+
+Before executing or reporting a candidate, apply the Devnet-only safety,
+severity, evidence, and submission gates in [`audit/SCOPE.md`](audit/SCOPE.md).
+
+Generate exact instruction discriminators, account order, and mutation indices
+for the controlled P1 experiments with:
+
+```bash
+python3 -m scripts.candidate_vectors --output audit/candidate-vectors.json
+```
+
+The vectors contain no keys or transactions; they bind an external Devnet test
+runner to the reviewed IDL hashes and make accidental account-index changes
+visible before signing.
+
+Check relation/PDA references and known associated-token seed anomalies with:
+
+```bash
+python3 -m scripts.audit_idl_consistency
+```
+
+The current interpretation is recorded in
+[`audit/IDL_INTEGRITY.md`](audit/IDL_INTEGRITY.md).
+
+The submission decision matrix is in
+[`audit/ELIGIBILITY.md`](audit/ELIGIBILITY.md); notably, IDL/client failures and
+atomic quote failures are closed unless a separate Devnet proof demonstrates
+eligible financial impact.
 
 ## Capture deployed Devnet evidence
 
@@ -62,7 +104,10 @@ The command first verifies the canonical Solana Devnet genesis hash, then checks
 the Upgradeable Loader owner and executable flag, derives each ProgramData
 address from the loader state, and records the genesis hash,
 finalized RPC slots, addresses, and SHA-256 hashes in `manifest.json`. This is a
-read-only operation; it does not create a keypair or submit a transaction.
+read-only operation; it does not create a keypair or submit a transaction. The
+manifest also decodes the ProgramData deployment slot, upgrade authority (or
+immutability), metadata length, and ELF length instead of treating arbitrary
+loader-owned bytes as valid ProgramData.
 
 ## Suggested review order
 
